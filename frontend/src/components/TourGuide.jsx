@@ -6,7 +6,7 @@ export default function TourGuide() {
 
   useEffect(() => {
     // Check if the user has already seen the tour
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v3');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v4');
     if (!hasSeenTour) {
       // Small delay to let the UI render completely
       const timer = setTimeout(() => {
@@ -103,7 +103,7 @@ export default function TourGuide() {
 
     if (finishedStatuses.includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_completed_v3', 'true');
+      localStorage.setItem('jobpulse_tour_completed_v4', 'true');
     }
   };
 
@@ -113,7 +113,7 @@ export default function TourGuide() {
       continuous
       run={run}
       scrollToFirstStep
-      scrollOffset={100}
+      scrollOffset={250}
       showProgress
       showSkipButton
       steps={steps}

@@ -55,12 +55,12 @@ export default function Dashboard() {
         <div className="flex-1 min-w-0">
           
           {/* Top Row: Ingestion Controls */}
-          <div className="mb-12 relative z-20">
+          <div className="mb-12">
             <ControlPanel events={events} onRunComplete={fetchData} />
           </div>
 
           {/* Middle Row: Source Health & Telemetry */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12 relative z-10">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12">
             
             {/* Source Health (Left, 2 columns) */}
             <div className="tour-source-health xl:col-span-2 relative hover:z-50">
