@@ -5,12 +5,32 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v11');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v12');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // During the tour, add extra top-padding to content so elements clear the sticky nav
+  useEffect(() => {
+    if (run) {
+      // Find the main content wrapper (first child after the nav)
+      const contentWrapper = document.querySelector('.max-w-\\[1400px\\]');
+      if (contentWrapper) {
+        contentWrapper.style.transition = 'padding-top 0.3s ease';
+        contentWrapper.style.paddingTop = '120px';
+      }
+    }
+    return () => {
+      // Restore original padding when tour ends
+      const contentWrapper = document.querySelector('.max-w-\\[1400px\\]');
+      if (contentWrapper) {
+        contentWrapper.style.paddingTop = '';
+        contentWrapper.style.transition = '';
+      }
+    };
+  }, [run]);
 
   const steps = [
     {
@@ -35,46 +55,23 @@ export default function TourGuide() {
       placement: 'bottom',
     },
     {
-      target: 'body',
-      placement: 'center',
-      content: (
-        <div className="text-left">
-          <h2 className="text-lg font-bold mb-2 text-cyan-400">⚡ Ingestion Control Panel</h2>
-          <p className="mb-2">
-            Right below the navigation bar, you will see the <strong>Ingestion Control</strong> panel with action buttons:
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            <li><strong>Run Arbeitnow</strong> — Pulls live data from the public Arbeitnow API</li>
-            <li><strong>Run RemoteOK</strong> — Fetches jobs from RemoteOK</li>
-          </ul>
-          <p className="mt-2 text-sm text-slate-400">
-            The pipeline automatically handles paginated fetching and deduplication!
-          </p>
-        </div>
-      ),
+      target: '.tour-control-panel',
+      content: 'Use these controls to manually trigger ingestion runs from different sources.',
+      placement: 'bottom',
     },
     {
-      target: 'body',
-      placement: 'center',
-      content: (
-        <div className="text-left">
-          <h2 className="text-lg font-bold mb-2 text-orange-400">🧪 Sandbox Simulation</h2>
-          <p className="mb-2">
-            Next to the Run buttons, you will find <strong>Sandbox</strong> controls:
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            <li><strong>Sandbox Normal</strong> — Simulates a healthy API response</li>
-            <li><strong>Sandbox 429</strong> — Forces a rate-limit error (HTTP 429)</li>
-          </ul>
-          <p className="mt-2 text-sm text-slate-400">
-            This proves the system is resilient! Watch the Circuit Breaker trip when failures pile up.
-          </p>
-        </div>
-      ),
+      target: '.tour-arbeitnow-btn',
+      content: 'Clicking this button pulls live data from the public Arbeitnow API. It will automatically fetch multiple pages and deduplicate the jobs.',
+      placement: 'bottom',
+    },
+    {
+      target: '.tour-sandbox-btn',
+      content: 'To prove the system is resilient, I built a Sandbox! Clicking these buttons forces the pipeline to hit simulated API rate limits (429) or server crashes (503).',
+      placement: 'bottom',
     },
     {
       target: '.tour-source-health',
-      content: 'Source Health tracks all data sources in real-time. If you hit the Sandbox rate limit, failures go up. Too many failures? The Circuit Breaker trips!',
+      content: 'This tracks the health of all data sources in real-time. If you hit the Sandbox rate limit, you will see the failures go up. If it fails too many times, the Circuit Breaker trips!',
       placement: 'bottom',
     },
     {
@@ -84,7 +81,7 @@ export default function TourGuide() {
     },
     {
       target: '.tour-filters',
-      content: 'Use these filters to drill down into specific data sources or job roles across the dashboard.',
+      content: 'You can use these filters to drill down into specific data sources or job roles across the dashboard.',
       placement: 'right',
     },
     {
@@ -98,18 +95,6 @@ export default function TourGuide() {
       placement: 'bottom',
     },
     {
-      target: 'body',
-      placement: 'center',
-      content: (
-        <div className="text-left">
-          <h2 className="text-lg font-bold mb-2 text-violet-400">📜 Ingestion History</h2>
-          <p>
-            The <strong>Ingestion History</strong> tab in the navigation shows a detailed log of every ingestion run — including timestamps, pages fetched, duplicates skipped, and validation errors.
-          </p>
-        </div>
-      ),
-    },
-    {
       target: '.tour-github-link',
       content: 'Want to see the code? The entire architecture, rate limiters, and circuit breakers are documented in my GitHub repository!',
       placement: 'left',
@@ -121,7 +106,7 @@ export default function TourGuide() {
         <div className="text-left">
           <h2 className="text-xl font-bold mb-2 text-green-400">Ready to go! 🚀</h2>
           <p>
-            Thanks for taking the tour! To see the pipeline in action, click the <strong>Run Arbeitnow</strong> button on the control panel!
+            Thanks for taking the tour! To see the pipeline in action, click the <strong>Run Arbeitnow</strong> button!
           </p>
         </div>
       ),
@@ -133,7 +118,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v11', 'true');
+      localStorage.setItem('jobpulse_tour_v12', 'true');
     }
   };
 
@@ -142,6 +127,7 @@ export default function TourGuide() {
       callback={handleCallback}
       continuous
       run={run}
+      disableScrolling
       showProgress
       showSkipButton
       steps={steps}
