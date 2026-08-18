@@ -6,7 +6,7 @@ export default function TourGuide() {
 
   useEffect(() => {
     // Check if the user has already seen the tour
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v5');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v6');
     if (!hasSeenTour) {
       // Small delay to let the UI render completely
       const timer = setTimeout(() => {
@@ -103,7 +103,7 @@ export default function TourGuide() {
 
     if (finishedStatuses.includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_completed_v5', 'true');
+      localStorage.setItem('jobpulse_tour_completed_v6', 'true');
     }
 
     // Force scroll correction if the element is hidden behind the 128px sticky nav
@@ -112,11 +112,8 @@ export default function TourGuide() {
         if (step.target !== 'body') {
           const targetEl = document.querySelector(step.target);
           if (targetEl) {
-            const rect = targetEl.getBoundingClientRect();
-            // Sticky nav is ~128px. If element is higher than 160px from viewport top, scroll up!
-            if (rect.top < 160) {
-              window.scrollBy({ top: rect.top - 160, behavior: 'smooth' });
-            }
+            // Instead of calculating rects, we just forcefully scroll the element into the center of the viewport
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
       }, 50); // slight delay to let Joyride finish its own scrolling
@@ -128,8 +125,8 @@ export default function TourGuide() {
       callback={handleJoyrideCallback}
       continuous
       run={run}
-      scrollToFirstStep
-      scrollOffset={250}
+      scrollToFirstStep={false}
+      disableScrolling={true}
       showProgress
       showSkipButton
       steps={steps}
