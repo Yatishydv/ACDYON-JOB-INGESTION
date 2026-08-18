@@ -5,7 +5,7 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v17');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v18');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
@@ -98,7 +98,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v17', 'true');
+      localStorage.setItem('jobpulse_tour_v18', 'true');
     }
   };
 
@@ -107,10 +107,9 @@ export default function TourGuide() {
       callback={handleCallback}
       continuous
       run={run}
-      disableScrolling={true}
-      scrollToFirstStep={false}
       showProgress
       showSkipButton
+      scrollOffset={180}
       steps={steps}
       styles={{
         options: {
