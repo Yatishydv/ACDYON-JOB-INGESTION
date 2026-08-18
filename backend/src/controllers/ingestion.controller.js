@@ -76,21 +76,30 @@ export const ingestionController = {
 
       logger.info('Ingestion triggered via API', { source, scenario });
 
-      // Run ingestion asynchronously — don't block the HTTP response
+      // Run ingestion
       const runPromise = runIngestion(adapter, { scenario });
 
-      // Return immediately with acknowledgment
-      // The dashboard will poll for updates
-      res.status(202).json({
-        message: 'Ingestion started',
-        source,
-        scenario: source === 'sandbox' ? scenario : undefined,
-      });
+      if (process.env.VERCEL) {
+        // In serverless environments, background execution halts after response is sent.
+        // We MUST await it, otherwise it only resumes during subsequent polling requests!
+        await runPromise;
+        res.status(200).json({
+          message: 'Ingestion completed',
+          source,
+          scenario: source === 'sandbox' ? scenario : undefined,
+        });
+      } else {
+        // In standard Node.js, return immediately and let it run in the background
+        res.status(202).json({
+          message: 'Ingestion started',
+          source,
+          scenario: source === 'sandbox' ? scenario : undefined,
+        });
 
-      // Let it complete in the background
-      runPromise.catch((err) => {
-        logger.error('Background ingestion error', { error: err.message });
-      });
+        runPromise.catch((err) => {
+          logger.error('Background ingestion error', { error: err.message });
+        });
+      }
     } catch (error) {
       next(error);
     }
