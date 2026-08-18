@@ -1,0 +1,15 @@
+{
+  "name": "jobpulse-sandbox",
+  "version": "1.0.0",
+  "description": "JobPulse — Controlled Failure Simulation Server",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5"
+  },
+  "type": "module"
+}
