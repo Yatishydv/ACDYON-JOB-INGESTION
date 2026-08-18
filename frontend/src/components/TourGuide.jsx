@@ -5,21 +5,36 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v13');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v14');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  // Lock page scroll completely during tour — no movement at all
+  // HARD lock: intercept ALL scroll events and force position back
   useEffect(() => {
-    if (run) {
-      document.body.style.overflow = 'hidden';
-    } else {
+    if (!run) return;
+
+    const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+
+    const forceBack = () => {
+      window.scrollTo(scrollX, scrollY);
+    };
+
+    // Catch scroll events and undo them immediately
+    window.addEventListener('scroll', forceBack, { passive: false });
+
+    // Also lock body and html overflow
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('scroll', forceBack);
       document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
+      document.documentElement.style.overflow = '';
+    };
   }, [run]);
 
   const steps = [
@@ -108,7 +123,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v13', 'true');
+      localStorage.setItem('jobpulse_tour_v14', 'true');
     }
   };
 
