@@ -113,6 +113,7 @@ export default function TourGuide() {
       continuous
       run={run}
       scrollToFirstStep
+      scrollOffset={100}
       showProgress
       showSkipButton
       steps={steps}
