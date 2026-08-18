@@ -5,31 +5,21 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v12');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v13');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  // During the tour, add extra top-padding to content so elements clear the sticky nav
+  // Lock page scroll completely during tour — no movement at all
   useEffect(() => {
     if (run) {
-      // Find the main content wrapper (first child after the nav)
-      const contentWrapper = document.querySelector('.max-w-\\[1400px\\]');
-      if (contentWrapper) {
-        contentWrapper.style.transition = 'padding-top 0.3s ease';
-        contentWrapper.style.paddingTop = '120px';
-      }
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
     }
-    return () => {
-      // Restore original padding when tour ends
-      const contentWrapper = document.querySelector('.max-w-\\[1400px\\]');
-      if (contentWrapper) {
-        contentWrapper.style.paddingTop = '';
-        contentWrapper.style.transition = '';
-      }
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [run]);
 
   const steps = [
@@ -81,7 +71,7 @@ export default function TourGuide() {
     },
     {
       target: '.tour-filters',
-      content: 'You can use these filters to drill down into specific data sources or job roles across the dashboard.',
+      content: 'Use these filters to drill down into specific data sources or job roles across the dashboard.',
       placement: 'right',
     },
     {
@@ -118,7 +108,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v12', 'true');
+      localStorage.setItem('jobpulse_tour_v13', 'true');
     }
   };
 
@@ -128,6 +118,7 @@ export default function TourGuide() {
       continuous
       run={run}
       disableScrolling
+      disableScrollParentFix
       showProgress
       showSkipButton
       steps={steps}
