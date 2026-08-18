@@ -1,19 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Joyride, STATUS, EVENTS } from 'react-joyride';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Joyride, STATUS } from 'react-joyride';
+
+// The sticky nav is 2 rows × 64px = ~128px. We need extra breathing room.
+const STICKY_NAV_HEIGHT = 140;
 
 export default function TourGuide() {
   const [run, setRun] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
-    // Check if the user has already seen the tour
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v6');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v7');
     if (!hasSeenTour) {
-      // Small delay to let the UI render completely
       const timer = setTimeout(() => {
         setRun(true);
-      }, 1000);
+      }, 1200);
       return () => clearTimeout(timer);
     }
+  }, []);
+
+  // Custom scroll function that accounts for the sticky nav
+  const scrollTargetIntoView = useCallback((target) => {
+    if (!target || target === 'body') return;
+
+    const el = document.querySelector(target);
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const absoluteTop = rect.top + window.scrollY;
+
+    // Calculate where to scroll so element is comfortably visible below the sticky nav
+    const scrollTo = absoluteTop - STICKY_NAV_HEIGHT - 30; // 30px extra breathing room
+
+    window.scrollTo({
+      top: Math.max(0, scrollTo),
+      behavior: 'smooth',
+    });
   }, []);
 
   const steps = [
@@ -56,12 +77,12 @@ export default function TourGuide() {
     {
       target: '.tour-source-health',
       content: 'This tracks the health of all data sources in real-time. If you hit the Sandbox rate limit, you will see the failures go up. If it fails too many times, the Circuit Breaker trips!',
-      placement: 'top',
+      placement: 'bottom',
     },
     {
       target: '.tour-telemetry',
       content: 'Watch the magic happen here! Every background event—fetching pages, validating schemas, rejecting bad data, and skipping duplicates—is streamed here live.',
-      placement: 'left',
+      placement: 'bottom',
     },
     {
       target: '.tour-filters',
@@ -90,7 +111,7 @@ export default function TourGuide() {
         <div className="text-left">
           <h2 className="text-xl font-bold mb-2 text-green-400">Ready to go! 🚀</h2>
           <p>
-            Thanks for taking the tour! To see the pipeline in action, click the <strong>Processing... (Arbeitnow)</strong> button!
+            Thanks for taking the tour! To see the pipeline in action, click the <strong>Run Arbeitnow</strong> button!
           </p>
         </div>
       ),
@@ -98,25 +119,32 @@ export default function TourGuide() {
   ];
 
   const handleJoyrideCallback = (data) => {
-    const { status, type, step } = data;
+    const { status, action, index, lifecycle } = data;
     const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
 
     if (finishedStatuses.includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_completed_v6', 'true');
+      localStorage.setItem('jobpulse_tour_completed_v7', 'true');
+      return;
     }
 
-    // Force scroll correction if the element is hidden behind the 128px sticky nav
-    if (type === EVENTS.TOOLTIP) {
+    // When the tooltip is ready to be shown, scroll the target into view
+    // We check lifecycle === 'tooltip' because that's when the tooltip is actually rendered
+    if (lifecycle === 'tooltip') {
+      const currentStep = steps[index];
+      // First scroll immediately
+      scrollTargetIntoView(currentStep?.target);
+      // Then scroll again after 300ms to override any Joyride interference
       setTimeout(() => {
-        if (step.target !== 'body') {
-          const targetEl = document.querySelector(step.target);
-          if (targetEl) {
-            // Instead of calculating rects, we just forcefully scroll the element into the center of the viewport
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }
-      }, 50); // slight delay to let Joyride finish its own scrolling
+        scrollTargetIntoView(currentStep?.target);
+      }, 300);
+    }
+
+    // Handle controlled step navigation
+    if (action === 'next' && lifecycle === 'complete') {
+      setStepIndex(index + 1);
+    } else if (action === 'prev' && lifecycle === 'complete') {
+      setStepIndex(index - 1);
     }
   };
 
@@ -125,7 +153,7 @@ export default function TourGuide() {
       callback={handleJoyrideCallback}
       continuous
       run={run}
-      scrollToFirstStep={false}
+      stepIndex={stepIndex}
       disableScrolling={true}
       showProgress
       showSkipButton
@@ -133,9 +161,9 @@ export default function TourGuide() {
       styles={{
         options: {
           zIndex: 10000,
-          primaryColor: '#6366f1', // Indigo 500
-          backgroundColor: '#1e293b', // Slate 800
-          textColor: '#f8fafc', // Slate 50
+          primaryColor: '#6366f1',
+          backgroundColor: '#1e293b',
+          textColor: '#f8fafc',
           arrowColor: '#1e293b',
         },
         tooltipContainer: {
