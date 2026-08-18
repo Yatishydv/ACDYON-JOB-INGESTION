@@ -5,42 +5,40 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v15');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v16');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  // Lock scroll at top during tour, fully unlock after
+  // Override scrollTo/scrollIntoView so Joyride can't move the page at all
   useEffect(() => {
     if (!run) return;
 
-    // First, scroll to top so the nav is visible
+    // Scroll to top first
     window.scrollTo(0, 0);
 
-    // Small delay to let the scroll complete, then lock
+    // Save originals
+    const originalScrollTo = window.scrollTo.bind(window);
+    const originalScrollBy = window.scrollBy.bind(window);
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+
+    // Replace with no-ops after a tiny delay (so our scrollTo(0,0) above completes)
     const lockTimer = setTimeout(() => {
-      const forceTop = () => window.scrollTo(0, 0);
-      window.addEventListener('scroll', forceTop);
+      window.scrollTo = () => {};
+      window.scrollBy = () => {};
+      Element.prototype.scrollIntoView = function() {};
+
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
-
-      // Store cleanup ref on window so we can always find it
-      window.__tourScrollCleanup = () => {
-        window.removeEventListener('scroll', forceTop);
-        document.body.style.overflow = '';
-        document.documentElement.style.overflow = '';
-        delete window.__tourScrollCleanup;
-      };
-    }, 100);
+    }, 50);
 
     return () => {
       clearTimeout(lockTimer);
-      // Always cleanup
-      if (window.__tourScrollCleanup) {
-        window.__tourScrollCleanup();
-      }
+      window.scrollTo = originalScrollTo;
+      window.scrollBy = originalScrollBy;
+      Element.prototype.scrollIntoView = originalScrollIntoView;
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
@@ -132,13 +130,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v15', 'true');
-      // Extra safety: force unlock scroll
-      if (window.__tourScrollCleanup) {
-        window.__tourScrollCleanup();
-      }
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
+      localStorage.setItem('jobpulse_tour_v16', 'true');
     }
   };
 
