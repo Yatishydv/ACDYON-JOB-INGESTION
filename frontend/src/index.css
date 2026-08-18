@@ -15,17 +15,12 @@
   --color-info: #3b82f6;
 }
 
-html {
-  scroll-padding-top: 180px;
-}
-
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
-  scroll-padding-top: 180px;
 }
 
 * {
@@ -36,7 +31,3 @@ body {
   min-height: 100vh;
 }
 
-/* When the guided tour is active, un-stick ONLY the top nav so it doesn't cover highlighted elements */
-body.tour-active #top-nav {
-  position: relative !important;
-}
