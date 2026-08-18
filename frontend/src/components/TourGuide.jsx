@@ -5,33 +5,42 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v14');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v15');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  // HARD lock: intercept ALL scroll events and force position back
+  // Lock scroll at top during tour, fully unlock after
   useEffect(() => {
     if (!run) return;
 
-    const scrollY = window.scrollY;
-    const scrollX = window.scrollX;
+    // First, scroll to top so the nav is visible
+    window.scrollTo(0, 0);
 
-    const forceBack = () => {
-      window.scrollTo(scrollX, scrollY);
-    };
+    // Small delay to let the scroll complete, then lock
+    const lockTimer = setTimeout(() => {
+      const forceTop = () => window.scrollTo(0, 0);
+      window.addEventListener('scroll', forceTop);
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
 
-    // Catch scroll events and undo them immediately
-    window.addEventListener('scroll', forceBack, { passive: false });
-
-    // Also lock body and html overflow
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+      // Store cleanup ref on window so we can always find it
+      window.__tourScrollCleanup = () => {
+        window.removeEventListener('scroll', forceTop);
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        delete window.__tourScrollCleanup;
+      };
+    }, 100);
 
     return () => {
-      window.removeEventListener('scroll', forceBack);
+      clearTimeout(lockTimer);
+      // Always cleanup
+      if (window.__tourScrollCleanup) {
+        window.__tourScrollCleanup();
+      }
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
@@ -123,7 +132,13 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v14', 'true');
+      localStorage.setItem('jobpulse_tour_v15', 'true');
+      // Extra safety: force unlock scroll
+      if (window.__tourScrollCleanup) {
+        window.__tourScrollCleanup();
+      }
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
   };
 
