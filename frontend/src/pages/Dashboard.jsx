@@ -39,7 +39,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="max-w-[1400px] mx-auto px-6 py-8">
+    <div id="dashboard-wrapper" className="max-w-[1400px] mx-auto px-6 py-8">
       {error && (
         <div className="mb-6 px-4 py-3 bg-red-100 border border-red-200 rounded-lg text-red-700 text-sm">
           {error}

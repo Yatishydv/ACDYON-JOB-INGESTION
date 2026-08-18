@@ -5,12 +5,30 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v18');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v19');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // When tour runs, push the dashboard content down so it clears the navbar.
+  // This physically moves the elements out from under the navbar so they are visible.
+  useEffect(() => {
+    if (run) {
+      window.scrollTo(0, 0); // start at top
+      const dashboard = document.getElementById('dashboard-wrapper');
+      if (dashboard) {
+        dashboard.style.transition = 'padding-top 0.3s ease';
+        dashboard.style.paddingTop = '140px'; 
+      }
+    } else {
+      const dashboard = document.getElementById('dashboard-wrapper');
+      if (dashboard) {
+        dashboard.style.paddingTop = '';
+      }
+    }
+  }, [run]);
 
   const steps = [
     {
@@ -98,7 +116,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v18', 'true');
+      localStorage.setItem('jobpulse_tour_v19', 'true');
     }
   };
 
@@ -109,7 +127,7 @@ export default function TourGuide() {
       run={run}
       showProgress
       showSkipButton
-      scrollOffset={180}
+      disableScrolling={true}
       steps={steps}
       styles={{
         options: {
