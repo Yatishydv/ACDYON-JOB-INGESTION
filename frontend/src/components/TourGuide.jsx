@@ -12,10 +12,8 @@ export default function TourGuide() {
         overlayColor: 'rgba(15, 23, 42, 0.85)',
         popoverClass: 'tour-theme',
         onDestroyStarted: () => {
-          if (!driverObj.hasNextStep() || confirm("Are you sure you want to exit the tour?")) {
-            localStorage.setItem('jobpulse_tour_v20', 'true');
-            driverObj.destroy();
-          }
+          localStorage.setItem('jobpulse_tour_v20', 'true');
+          driverObj.destroy();
         },
         steps: [
           {
