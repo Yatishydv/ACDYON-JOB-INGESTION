@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Joyride, STATUS } from 'react-joyride';
+import { Joyride, STATUS, EVENTS } from 'react-joyride';
 
 export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
     // Check if the user has already seen the tour
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v4');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v5');
     if (!hasSeenTour) {
       // Small delay to let the UI render completely
       const timer = setTimeout(() => {
@@ -98,12 +98,28 @@ export default function TourGuide() {
   ];
 
   const handleJoyrideCallback = (data) => {
-    const { status } = data;
+    const { status, type, step } = data;
     const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
 
     if (finishedStatuses.includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_completed_v4', 'true');
+      localStorage.setItem('jobpulse_tour_completed_v5', 'true');
+    }
+
+    // Force scroll correction if the element is hidden behind the 128px sticky nav
+    if (type === EVENTS.TOOLTIP) {
+      setTimeout(() => {
+        if (step.target !== 'body') {
+          const targetEl = document.querySelector(step.target);
+          if (targetEl) {
+            const rect = targetEl.getBoundingClientRect();
+            // Sticky nav is ~128px. If element is higher than 160px from viewport top, scroll up!
+            if (rect.top < 160) {
+              window.scrollBy({ top: rect.top - 160, behavior: 'smooth' });
+            }
+          }
+        }
+      }, 50); // slight delay to let Joyride finish its own scrolling
     }
   };
 
