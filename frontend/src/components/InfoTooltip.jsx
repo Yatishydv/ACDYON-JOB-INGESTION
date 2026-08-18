@@ -26,7 +26,7 @@ export default function InfoTooltip({ text }) {
 
   return (
     <div 
-      className="inline-flex items-center justify-center ml-2"
+      className="tour-info-tooltip inline-flex items-center justify-center ml-2"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShow(false)}
       ref={iconRef}

@@ -69,6 +69,16 @@ export default function TopNav() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-6 text-sm text-slate-400">
+            <button 
+              onClick={() => window.startJobPulseTour && window.startJobPulseTour()}
+              className="hidden md:flex items-center gap-2 hover:text-white transition-colors border-r border-slate-700 pr-6"
+              title="Start Interactive Tour"
+            >
+              <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-medium text-indigo-300">Take Tour</span>
+            </button>
             <a 
               href="https://github.com/Yatishydv/ACDYON-JOB-INGESTION" 
               target="_blank" 
