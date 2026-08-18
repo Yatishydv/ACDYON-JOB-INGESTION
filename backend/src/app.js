@@ -8,6 +8,7 @@ import healthRoutes from './routes/health.routes.js';
 import jobsRoutes from './routes/jobs.routes.js';
 import ingestionRoutes from './routes/ingestion.routes.js';
 import sourcesRoutes from './routes/sources.routes.js';
+import sandboxRoutes from './routes/sandbox.routes.js';
 import logger from './utils/logger.js';
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/ingestion', ingestionRoutes);
 app.use('/api/sources', sourcesRoutes);
+app.use('/api/sandbox', sandboxRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);
