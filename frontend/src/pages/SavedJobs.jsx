@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 import JobCard from '../components/JobCard';
+import { JobCardSkeleton } from '../components/SkeletonLoader';
 
 export default function SavedJobs() {
   const [savedJobs, setSavedJobs] = useState([]);
@@ -58,8 +59,8 @@ export default function SavedJobs() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-500 rounded-full animate-spin"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <JobCardSkeleton key={i} />)}
         </div>
       ) : savedJobs.length === 0 ? (
         <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl shadow-sm">

@@ -6,6 +6,7 @@ import JobCard from '../components/JobCard';
 import ControlPanel from '../components/ControlPanel';
 import IngestionEvents from '../components/IngestionEvents';
 import InfoTooltip from '../components/InfoTooltip';
+import { JobCardSkeleton, SourceHealthSkeleton } from '../components/SkeletonLoader';
 
 export default function Dashboard() {
   const [sources, setSources] = useState([]);
@@ -70,9 +71,11 @@ export default function Dashboard() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
                 {loading && sources.length === 0 ? (
-                  <div className="col-span-full py-12 flex justify-center">
-                    <div className="w-8 h-8 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-                  </div>
+                  <>
+                    <SourceHealthSkeleton />
+                    <SourceHealthSkeleton />
+                    <SourceHealthSkeleton />
+                  </>
                 ) : (
                   sources.map(source => (
                     <SourceHealthCard key={source.name} source={source} />
@@ -114,8 +117,11 @@ export default function Dashboard() {
             </div>
 
             {loading && recentJobs.length === 0 ? (
-              <div className="py-12 flex justify-center">
-                <div className="w-8 h-8 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 auto-rows-fr">
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+                <JobCardSkeleton />
               </div>
             ) : recentJobs.length === 0 ? (
               <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm h-[300px] flex flex-col items-center justify-center">

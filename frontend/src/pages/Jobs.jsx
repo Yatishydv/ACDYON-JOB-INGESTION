@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../services/api';
-import JobCard from '../components/JobCard';
 import AppSidebar from '../components/AppSidebar';
+import JobCard from '../components/JobCard';
+import { JobCardSkeleton } from '../components/SkeletonLoader';
 
 export default function Jobs() {
   const [searchParams] = useSearchParams();
@@ -70,9 +71,8 @@ export default function Jobs() {
 
           {/* Grid View */}
           {loading ? (
-            <div className="flex items-center justify-center py-32">
-              <div className="w-10 h-10 border-4 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-              <span className="ml-4 text-slate-500 font-medium text-lg">Loading jobs...</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 auto-rows-fr">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => <JobCardSkeleton key={i} />)}
             </div>
           ) : jobs.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">

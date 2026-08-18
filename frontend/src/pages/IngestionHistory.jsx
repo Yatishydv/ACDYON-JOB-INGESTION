@@ -74,8 +74,8 @@ export default function IngestionHistory() {
       )}
 
       {loading && runs.length === 0 ? (
-        <div className="flex justify-center py-32">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div>
+          {[1, 2, 3, 4].map(i => <HistoryCardSkeleton key={i} />)}
         </div>
       ) : runs.length === 0 ? (
         <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-[2rem] p-16 text-center shadow-sm">
