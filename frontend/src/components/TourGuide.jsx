@@ -5,44 +5,12 @@ export default function TourGuide() {
   const [run, setRun] = useState(false);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v16');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v17');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
-
-  // Override scrollTo/scrollIntoView so Joyride can't move the page at all
-  useEffect(() => {
-    if (!run) return;
-
-    // Scroll to top first
-    window.scrollTo(0, 0);
-
-    // Save originals
-    const originalScrollTo = window.scrollTo.bind(window);
-    const originalScrollBy = window.scrollBy.bind(window);
-    const originalScrollIntoView = Element.prototype.scrollIntoView;
-
-    // Replace with no-ops after a tiny delay (so our scrollTo(0,0) above completes)
-    const lockTimer = setTimeout(() => {
-      window.scrollTo = () => {};
-      window.scrollBy = () => {};
-      Element.prototype.scrollIntoView = function() {};
-
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    }, 50);
-
-    return () => {
-      clearTimeout(lockTimer);
-      window.scrollTo = originalScrollTo;
-      window.scrollBy = originalScrollBy;
-      Element.prototype.scrollIntoView = originalScrollIntoView;
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
-  }, [run]);
 
   const steps = [
     {
@@ -130,7 +98,7 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v16', 'true');
+      localStorage.setItem('jobpulse_tour_v17', 'true');
     }
   };
 
@@ -139,8 +107,8 @@ export default function TourGuide() {
       callback={handleCallback}
       continuous
       run={run}
-      disableScrolling
-      disableScrollParentFix
+      disableScrolling={true}
+      scrollToFirstStep={false}
       showProgress
       showSkipButton
       steps={steps}
