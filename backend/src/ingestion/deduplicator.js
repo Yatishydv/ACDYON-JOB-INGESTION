@@ -23,7 +23,8 @@ export async function deduplicateAndStore(jobs) {
   let duplicates = 0;
   const errors = [];
 
-  for (const job of jobs) {
+  // Process jobs concurrently to speed up database queries
+  await Promise.all(jobs.map(async (job) => {
     try {
       // Try to find existing by source + sourceJobId
       const existing = await Job.findOne({
@@ -36,7 +37,7 @@ export async function deduplicateAndStore(jobs) {
         existing.lastSeenAt = new Date();
         await existing.save();
         duplicates++;
-        continue;
+        return;
       }
 
       // Also check by contentHash (cross-source dedup)
@@ -45,7 +46,7 @@ export async function deduplicateAndStore(jobs) {
         hashMatch.lastSeenAt = new Date();
         await hashMatch.save();
         duplicates++;
-        continue;
+        return;
       }
 
       // New job: insert
@@ -64,7 +65,7 @@ export async function deduplicateAndStore(jobs) {
         });
       }
     }
-  }
+  }));
 
   logger.info('Deduplication complete', { inserted, duplicates, errors: errors.length });
 
