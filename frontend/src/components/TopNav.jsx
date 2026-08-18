@@ -45,7 +45,7 @@ export default function TopNav() {
     }`;
 
   return (
-    <div className="w-full font-sans sticky top-0 z-50">
+    <div className="w-full font-sans sticky top-0 z-[90]">
       {/* Top Row - Primary Nav */}
       <div className="bg-[#1a1b1e] text-white border-b border-slate-800">
         <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-between h-16">
