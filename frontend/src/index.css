@@ -35,3 +35,8 @@ body {
 #root {
   min-height: 100vh;
 }
+
+/* When the guided tour is active, un-stick the nav so it doesn't cover highlighted elements */
+body.tour-active .sticky {
+  position: relative !important;
+}

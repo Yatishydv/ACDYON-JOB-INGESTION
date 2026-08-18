@@ -1,42 +1,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
-const NAV_HEIGHT = 150;
+const NAV_HEIGHT = 160;
+
+function scrollToTarget(target) {
+  if (!target || target === 'body') return;
+  const el = document.querySelector(target);
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const absoluteTop = rect.top + window.scrollY;
+  // Scroll so element is 20px from top (nav is non-sticky during tour)
+  window.scrollTo({
+    top: Math.max(0, absoluteTop - 20),
+    behavior: 'smooth',
+  });
+}
 
 export default function TourGuide() {
   const [run, setRun] = useState(false);
   const lastScrolledIndex = useRef(-1);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v9');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v10');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  // Brute-force: watch for Joyride's spotlight appearing and scroll to it
+  // Toggle body class to disable sticky nav during tour
   useEffect(() => {
-    if (!run) return;
-
-    const observer = new MutationObserver(() => {
-      // Joyride renders a spotlight element with class __joyride-spotlight or react-joyride__spotlight
-      const spotlight = document.querySelector('.__floater');
-      if (spotlight) {
-        const rect = spotlight.getBoundingClientRect();
-        // If the spotlight/floater is near top (behind nav) or off-screen, scroll
-        if (rect.top < NAV_HEIGHT) {
-          const absoluteTop = rect.top + window.scrollY;
-          window.scrollTo({
-            top: Math.max(0, absoluteTop - NAV_HEIGHT - 20),
-            behavior: 'smooth',
-          });
-        }
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-    return () => observer.disconnect();
+    if (run) {
+      document.body.classList.add('tour-active');
+      // Scroll to top when tour starts so everything is fresh
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      document.body.classList.remove('tour-active');
+    }
+    return () => document.body.classList.remove('tour-active');
   }, [run]);
 
   const steps = [
@@ -125,31 +126,17 @@ export default function TourGuide() {
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v9', 'true');
+      localStorage.setItem('jobpulse_tour_v10', 'true');
       return;
     }
 
-    // On EVERY callback, ensure the target is visible
+    // On step change, scroll the target into view
     if (index !== lastScrolledIndex.current) {
       lastScrolledIndex.current = index;
       const step = steps[index];
       if (step && step.target !== 'body') {
-        // Scroll in multiple passes to fight any interference
-        [50, 200, 500].forEach((delay) => {
-          setTimeout(() => {
-            const el = document.querySelector(step.target);
-            if (el) {
-              const rect = el.getBoundingClientRect();
-              // If element is behind the sticky nav OR below the viewport
-              if (rect.top < NAV_HEIGHT || rect.bottom > window.innerHeight) {
-                const absoluteTop = rect.top + window.scrollY;
-                window.scrollTo({
-                  top: Math.max(0, absoluteTop - NAV_HEIGHT - 20),
-                  behavior: 'smooth',
-                });
-              }
-            }
-          }, delay);
+        [100, 400].forEach((delay) => {
+          setTimeout(() => scrollToTarget(step.target), delay);
         });
       }
     }
