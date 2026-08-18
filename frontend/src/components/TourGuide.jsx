@@ -1,30 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
-const STICKY_NAV_HEIGHT = 140;
-
-function scrollToTarget(target) {
-  if (!target || target === 'body') return;
-  const el = document.querySelector(target);
-  if (!el) return;
-  const rect = el.getBoundingClientRect();
-  const absoluteTop = rect.top + window.scrollY;
-  window.scrollTo({
-    top: Math.max(0, absoluteTop - STICKY_NAV_HEIGHT - 30),
-    behavior: 'smooth',
-  });
-}
+const NAV_HEIGHT = 150;
 
 export default function TourGuide() {
   const [run, setRun] = useState(false);
+  const lastScrolledIndex = useRef(-1);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_v8');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v9');
     if (!hasSeenTour) {
       const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Brute-force: watch for Joyride's spotlight appearing and scroll to it
+  useEffect(() => {
+    if (!run) return;
+
+    const observer = new MutationObserver(() => {
+      // Joyride renders a spotlight element with class __joyride-spotlight or react-joyride__spotlight
+      const spotlight = document.querySelector('.__floater');
+      if (spotlight) {
+        const rect = spotlight.getBoundingClientRect();
+        // If the spotlight/floater is near top (behind nav) or off-screen, scroll
+        if (rect.top < NAV_HEIGHT) {
+          const absoluteTop = rect.top + window.scrollY;
+          window.scrollTo({
+            top: Math.max(0, absoluteTop - NAV_HEIGHT - 20),
+            behavior: 'smooth',
+          });
+        }
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    return () => observer.disconnect();
+  }, [run]);
 
   const steps = [
     {
@@ -108,20 +121,37 @@ export default function TourGuide() {
   ];
 
   const handleCallback = (data) => {
-    const { status, index, lifecycle } = data;
+    const { status, index } = data;
 
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_v8', 'true');
+      localStorage.setItem('jobpulse_tour_v9', 'true');
       return;
     }
 
-    // When a tooltip is shown, scroll its target into view below the sticky nav
-    if (lifecycle === 'tooltip') {
+    // On EVERY callback, ensure the target is visible
+    if (index !== lastScrolledIndex.current) {
+      lastScrolledIndex.current = index;
       const step = steps[index];
-      scrollToTarget(step?.target);
-      // Second scroll after 350ms to guarantee it sticks
-      setTimeout(() => scrollToTarget(step?.target), 350);
+      if (step && step.target !== 'body') {
+        // Scroll in multiple passes to fight any interference
+        [50, 200, 500].forEach((delay) => {
+          setTimeout(() => {
+            const el = document.querySelector(step.target);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              // If element is behind the sticky nav OR below the viewport
+              if (rect.top < NAV_HEIGHT || rect.bottom > window.innerHeight) {
+                const absoluteTop = rect.top + window.scrollY;
+                window.scrollTo({
+                  top: Math.max(0, absoluteTop - NAV_HEIGHT - 20),
+                  behavior: 'smooth',
+                });
+              }
+            }
+          }, delay);
+        });
+      }
     }
   };
 
