@@ -60,7 +60,7 @@ export default function AppSidebar() {
         </div>
 
         {/* Interactive Filters */}
-        <div className="px-2">
+        <div className="tour-filters px-2">
           <div className="flex items-center justify-between mb-6">
             <h4 className="text-lg font-bold text-slate-900">Filters</h4>
             <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

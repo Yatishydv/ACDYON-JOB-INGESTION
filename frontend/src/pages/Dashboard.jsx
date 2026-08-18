@@ -63,7 +63,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12 relative z-10">
             
             {/* Source Health (Left, 2 columns) */}
-            <div className="xl:col-span-2 relative hover:z-50">
+            <div className="tour-source-health xl:col-span-2 relative hover:z-50">
               <h2 className="text-[2rem] font-bold text-slate-900 leading-none mb-6 flex items-center">
                 Source Health
                 <InfoTooltip text="Real-time monitoring of all external job API sources. The system continually tracks latency and error rates to prevent cascading failures." />
@@ -82,7 +82,7 @@ export default function Dashboard() {
             </div>
 
             {/* Pipeline Telemetry (Right, 1 column) */}
-            <div className="xl:col-span-1 flex flex-col min-h-0 relative hover:z-50">
+            <div className="tour-telemetry xl:col-span-1 flex flex-col min-h-0 relative hover:z-50">
               <div className="flex items-center justify-between mb-6 shrink-0">
                 <h2 className="text-2xl font-bold text-slate-900 leading-none flex items-center">
                   Pipeline Telemetry

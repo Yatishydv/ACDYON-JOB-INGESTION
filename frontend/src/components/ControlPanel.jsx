@@ -82,7 +82,7 @@ export default function ControlPanel({ onRunComplete, events = [] }) {
   };
 
   return (
-    <div className="bg-slate-50/90 backdrop-blur-xl border border-white/80 rounded-[1.5rem] p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15),inset_0_4px_3px_rgba(255,255,255,1),inset_0_-6px_12px_rgba(0,0,0,0.06)] mb-8 relative transition-all hover:z-50">
+    <div className="tour-control-panel bg-slate-50/90 backdrop-blur-xl border border-white/80 rounded-[1.5rem] p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15),inset_0_4px_3px_rgba(255,255,255,1),inset_0_-6px_12px_rgba(0,0,0,0.06)] mb-8 relative transition-all hover:z-50">
       
       {/* Cool Progress Loader Overlay */}
       {showProgress && (
@@ -103,7 +103,7 @@ export default function ControlPanel({ onRunComplete, events = [] }) {
         <button
           onClick={() => runIngestion('arbeitnow')}
           disabled={Object.values(ingesting).some(Boolean)}
-          className="relative overflow-hidden flex items-center gap-3 bg-[#1a1b1e] hover:bg-black text-white px-6 py-3 rounded-full font-semibold transition-all disabled:opacity-50"
+          className="tour-arbeitnow-btn relative overflow-hidden flex items-center gap-3 bg-[#1a1b1e] hover:bg-black text-white px-6 py-3 rounded-full font-semibold transition-all disabled:opacity-50"
         >
           {ingesting['arbeitnow'] && (
             <div className="absolute inset-0 bg-indigo-500/20 animate-pulse"></div>
@@ -140,7 +140,7 @@ export default function ControlPanel({ onRunComplete, events = [] }) {
         <div className="w-px bg-slate-200 mx-2 hidden sm:block"></div>
 
         {/* Sandbox Simulation */}
-        <div className="flex items-center gap-2">
+        <div className="tour-sandbox-btn flex items-center gap-2">
           <button
             onClick={() => simulateSandbox('normal')}
             disabled={Object.values(ingesting).some(Boolean)}

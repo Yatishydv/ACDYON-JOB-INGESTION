@@ -52,7 +52,7 @@ export default function TopNav() {
           
           {/* Logo & Links */}
           <div className="flex items-center gap-10">
-            <div className="flex items-center gap-2">
+            <div className="tour-dashboard-title flex items-center gap-2">
               <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
                 <div className="w-3 h-3 bg-[#1a1b1e] rounded-sm"></div>
               </div>
@@ -61,8 +61,8 @@ export default function TopNav() {
             
             <nav className="hidden md:flex items-center gap-6 h-full">
               <NavLink to="/" className={linkClass}>Dashboard</NavLink>
-              <NavLink to="/jobs" className={linkClass}>All Jobs</NavLink>
-              <NavLink to="/saved" className={linkClass}>Saved Jobs</NavLink>
+              <NavLink to="/jobs" className={({isActive}) => `tour-nav-alljobs ${linkClass({isActive})}`}>All Jobs</NavLink>
+              <NavLink to="/saved" className={({isActive}) => `tour-nav-savedjobs ${linkClass({isActive})}`}>Saved Jobs</NavLink>
               <NavLink to="/history" className={linkClass}>Ingestion History</NavLink>
             </nav>
           </div>
@@ -73,7 +73,7 @@ export default function TopNav() {
               href="https://github.com/Yatishydv/ACDYON-JOB-INGESTION" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="hidden md:flex items-center gap-2 hover:text-white transition-colors border-r border-slate-700 pr-6"
+              className="tour-github-link hidden md:flex items-center gap-2 hover:text-white transition-colors border-r border-slate-700 pr-6"
               title="Project Repository"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +85,7 @@ export default function TopNav() {
               href="https://github.com/Yatishydv/ACDYON-JOB-INGESTION" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="text-slate-400 hover:text-white transition-colors"
+              className="tour-github-link text-slate-400 hover:text-white transition-colors"
               title="GitHub Repository"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
