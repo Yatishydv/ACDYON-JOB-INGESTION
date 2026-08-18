@@ -36,7 +36,7 @@ body {
   min-height: 100vh;
 }
 
-/* When the guided tour is active, un-stick the nav so it doesn't cover highlighted elements */
-body.tour-active .sticky {
+/* When the guided tour is active, un-stick ONLY the top nav so it doesn't cover highlighted elements */
+body.tour-active #top-nav {
   position: relative !important;
 }
