@@ -1,40 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Joyride, STATUS } from 'react-joyride';
 
-// The sticky nav is 2 rows × 64px = ~128px. We need extra breathing room.
 const STICKY_NAV_HEIGHT = 140;
+
+function scrollToTarget(target) {
+  if (!target || target === 'body') return;
+  const el = document.querySelector(target);
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const absoluteTop = rect.top + window.scrollY;
+  window.scrollTo({
+    top: Math.max(0, absoluteTop - STICKY_NAV_HEIGHT - 30),
+    behavior: 'smooth',
+  });
+}
 
 export default function TourGuide() {
   const [run, setRun] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('jobpulse_tour_completed_v7');
+    const hasSeenTour = localStorage.getItem('jobpulse_tour_v8');
     if (!hasSeenTour) {
-      const timer = setTimeout(() => {
-        setRun(true);
-      }, 1200);
+      const timer = setTimeout(() => setRun(true), 1200);
       return () => clearTimeout(timer);
     }
-  }, []);
-
-  // Custom scroll function that accounts for the sticky nav
-  const scrollTargetIntoView = useCallback((target) => {
-    if (!target || target === 'body') return;
-
-    const el = document.querySelector(target);
-    if (!el) return;
-
-    const rect = el.getBoundingClientRect();
-    const absoluteTop = rect.top + window.scrollY;
-
-    // Calculate where to scroll so element is comfortably visible below the sticky nav
-    const scrollTo = absoluteTop - STICKY_NAV_HEIGHT - 30; // 30px extra breathing room
-
-    window.scrollTo({
-      top: Math.max(0, scrollTo),
-      behavior: 'smooth',
-    });
   }, []);
 
   const steps = [
@@ -118,43 +107,30 @@ export default function TourGuide() {
     },
   ];
 
-  const handleJoyrideCallback = (data) => {
-    const { status, action, index, lifecycle } = data;
-    const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+  const handleCallback = (data) => {
+    const { status, index, lifecycle } = data;
 
-    if (finishedStatuses.includes(status)) {
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       setRun(false);
-      localStorage.setItem('jobpulse_tour_completed_v7', 'true');
+      localStorage.setItem('jobpulse_tour_v8', 'true');
       return;
     }
 
-    // When the tooltip is ready to be shown, scroll the target into view
-    // We check lifecycle === 'tooltip' because that's when the tooltip is actually rendered
+    // When a tooltip is shown, scroll its target into view below the sticky nav
     if (lifecycle === 'tooltip') {
-      const currentStep = steps[index];
-      // First scroll immediately
-      scrollTargetIntoView(currentStep?.target);
-      // Then scroll again after 300ms to override any Joyride interference
-      setTimeout(() => {
-        scrollTargetIntoView(currentStep?.target);
-      }, 300);
-    }
-
-    // Handle controlled step navigation
-    if (action === 'next' && lifecycle === 'complete') {
-      setStepIndex(index + 1);
-    } else if (action === 'prev' && lifecycle === 'complete') {
-      setStepIndex(index - 1);
+      const step = steps[index];
+      scrollToTarget(step?.target);
+      // Second scroll after 350ms to guarantee it sticks
+      setTimeout(() => scrollToTarget(step?.target), 350);
     }
   };
 
   return (
     <Joyride
-      callback={handleJoyrideCallback}
+      callback={handleCallback}
       continuous
       run={run}
-      stepIndex={stepIndex}
-      disableScrolling={true}
+      disableScrolling
       showProgress
       showSkipButton
       steps={steps}
@@ -166,15 +142,9 @@ export default function TourGuide() {
           textColor: '#f8fafc',
           arrowColor: '#1e293b',
         },
-        tooltipContainer: {
-          textAlign: 'left',
-        },
-        buttonNext: {
-          backgroundColor: '#6366f1',
-        },
-        buttonBack: {
-          color: '#94a3b8',
-        },
+        tooltipContainer: { textAlign: 'left' },
+        buttonNext: { backgroundColor: '#6366f1' },
+        buttonBack: { color: '#94a3b8' },
       }}
     />
   );
