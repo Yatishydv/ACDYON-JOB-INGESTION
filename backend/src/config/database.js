@@ -7,12 +7,20 @@ import logger from '../utils/logger.js';
  * Does not crash silently — logs connection state and errors.
  */
 export async function connectDatabase() {
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
+  
   try {
     await mongoose.connect(config.mongodbUri);
     logger.info('MongoDB connected successfully');
   } catch (error) {
     logger.error('MongoDB connection failed', { error: error.message });
-    process.exit(1);
+    // Don't exit process in serverless environment
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
+    throw error;
   }
 
   mongoose.connection.on('error', (err) => {

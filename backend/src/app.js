@@ -39,9 +39,12 @@ async function start() {
   });
 }
 
-start().catch((error) => {
-  logger.error('Failed to start server', { error: error.message });
-  process.exit(1);
-});
+// Only start the server if not running in a Vercel serverless environment
+if (!process.env.VERCEL) {
+  start().catch((error) => {
+    logger.error('Failed to start server', { error: error.message });
+    process.exit(1);
+  });
+}
 
 export default app;
