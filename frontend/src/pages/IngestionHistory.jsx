@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { HistoryCardSkeleton } from '../components/SkeletonLoader';
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
