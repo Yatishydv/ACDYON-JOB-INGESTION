@@ -5,7 +5,21 @@ import { api } from '../services/api';
 export default function TopNav() {
   const [searchTerm, setSearchTerm] = useState('');
   const [stats, setStats] = useState({ totalJobs: 0, lastRun: null });
+  const [clickCount, setClickCount] = useState(0);
+  const [easterEgg, setEasterEgg] = useState(false);
   const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+    if (newCount >= 7) {
+      setEasterEgg(true);
+      setTimeout(() => {
+        setEasterEgg(false);
+        setClickCount(0);
+      }, 3000);
+    }
+  };
 
   useEffect(() => {
     // Fetch global stats for the nav bar
@@ -52,7 +66,7 @@ export default function TopNav() {
           
           {/* Logo & Links */}
           <div className="flex items-center gap-10">
-            <div className="tour-dashboard-title flex items-center gap-2">
+            <div className="tour-dashboard-title flex items-center gap-2 cursor-pointer select-none" onClick={handleLogoClick}>
               <div className="w-6 h-6 bg-white rounded flex items-center justify-center">
                 <div className="w-3 h-3 bg-[#1a1b1e] rounded-sm"></div>
               </div>
@@ -141,6 +155,12 @@ export default function TopNav() {
 
         </div>
       </div>
+
+      {easterEgg && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 mt-4 px-6 py-3 bg-amber-900 border border-amber-600 rounded-lg text-amber-300 text-sm font-bold text-center animate-pulse shadow-xl z-[100]">
+          Source detected something suspicious 👀
+        </div>
+      )}
     </div>
   );
 }
